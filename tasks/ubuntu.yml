@@ -27,6 +27,7 @@
     - php{{ ubuntu_php_version }}-fpm
     - php{{ ubuntu_php_version }}-mysql
     - php{{ ubuntu_php_version }}-xml
+    - php{{ ubuntu_php_version }}-curl
     - php{{ ubuntu_php_version }}-mcrypt
     - php{{ ubuntu_php_version }}-mbstring
     - php{{ ubuntu_php_version }}-gd
