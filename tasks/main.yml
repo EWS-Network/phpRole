@@ -1,0 +1,30 @@
+---
+# Install PHP
+
+- name: Add PHP Group
+  group:
+    name: php
+    state: present
+    system: yes
+  become: yes
+  ignore_errors: yes
+  tags:
+    - preinstall
+
+- name: Add PHP user
+  user:
+    name: php
+    group: php
+    shell: /sbin/nologin
+    state: present
+    home: /var/www
+    system: yes
+    createhome: no
+  become: yes
+  ignore_errors: yes
+  tags:
+    - preinstall
+
+- name: Install PHP for the OS
+  include: "{{ ansible_distribution|lower }}.yml"
+  become: yes

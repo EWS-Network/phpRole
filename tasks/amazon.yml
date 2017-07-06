@@ -1,0 +1,124 @@
+---
+# Install PHP for AWS
+
+- name: Include Amazon Linux vars
+  include_vars: aws.yml
+
+#- name: Play the PHP Version tasks
+#  include: aws-php{{ php_maj_version }}.yml
+#
+
+- name: Install PHP
+  yum:
+    name: "{{ item }}"
+    state: present
+    disablerepo: epel
+  with_items:
+    - php{{ aws_php_version }}-session
+    - php{{ aws_php_version }}-zlib
+    - php{{ aws_php_version }}-pcre
+    - php{{ aws_php_version }}-xml
+    - php{{ aws_php_version }}-json
+    - php{{ aws_php_version }}-mcrypt
+    - php{{ aws_php_version }}-mbstring
+    - php{{ aws_php_version }}-gd
+    - php{{ aws_php_version }}-intl
+    - php{{ aws_php_version }}-curl
+    - php{{ aws_php_version }}-ctype
+    - php{{ aws_php_version }}-fpm
+    - php{{ aws_php_version }}-gd
+    - php{{ aws_php_version }}-mbstring
+    - php{{ aws_php_version }}-mysqlnd
+    - php{{ aws_php_version }}-gd
+    - php{{ aws_php_version }}-intl
+    - php{{ aws_php_version }}-pecl-redis
+  become: yes
+  register: php7_install
+  tags:
+    - preinstall
+
+# AWS Now has Redis PECL in repositories for PHP7
+#
+# - name: Check if redis.so already exists
+#   stat:
+#     path: "{{ php_conf_dir_path }}/{{ php_redis_ini_file }}"
+#   register: php7_redis_stat
+#   become: yes
+#   tags:
+#     - preinstall
+#
+# - name: Install PHP 7 redis from PECL
+#   script: install-php7-redis.sh
+#   become: yes
+#   when:
+#     - not php7_redis_stat.stat.exists
+#   tags:
+#     - preinstall
+
+# - name: Create the php redis ini file
+#   template:
+#     src: redis.ini.j2
+#     dest: "{{ php_conf_dir_path }}/{{ php_redis_ini_file }}"
+#   when:
+#     - not php7_redis_stat.stat.exists
+#   become: yes
+#   tags:
+#     - preinstall
+
+
+- name: Check sessions directories exist
+  stat:
+    path: /var/lib/php/session
+  register: php_session_exists
+  tags:
+    - packages
+    - preinstall
+
+- name: Create php session directories
+  file:
+    state: directory
+    owner: "{{ php_user }}"
+    group: "{{ php_group }}"
+    path: "{{ item }}"
+    recurse: yes
+  with_items:
+    - /var/lib/php/session
+    - /var/lib/php/wsdlcache
+  when:
+    - (php7_install|changed) or not (php_session_exists.stat.exists)
+  become: yes
+
+- name: Create the php-fpm configuration file
+  template:
+    src: php-fpm.conf.j2
+    dest: "{{ php_fpm_conf_path }}"
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+- name: Generate PHP INI
+  template:
+    src: php.ini.j2
+    dest: "{{ php_fpm_ini_path }}"
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+- name: Remove all default pool files
+  shell: |
+    rm -rfv {{ php_fpm_pool_dir_path }}/*
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+- name: Stop PHP
+  service:
+    name: php-fpm-{{ php_version }}
+    state: stopped
+  become: yes
+  tags:
+    - preinstall
+    - packages

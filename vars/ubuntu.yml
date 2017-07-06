@@ -1,0 +1,7 @@
+
+ubuntu_php_version: "{{ php_maj_version }}.{{ php_min_version }}"
+
+php_fpm_dir_path: "/etc/php/{{ php_version }}/fpm"
+php_fpm_conf_path: "{{ php_fpm_dir_path }}/php-fpm.conf"
+php_fpm_ini_path: "{{ php_fpm_dir_path }}/php.ini"
+php_fpm_pool_dir_path: "{{ php_fpm_dir_path }}/pool.d"

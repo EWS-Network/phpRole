@@ -1,0 +1,11 @@
+
+aws_php_version: "{{ php_maj_version }}{{ php_min_version }}"
+
+php_fpm_generic_path: "/etc/php-fpm-{{ php_version }}"
+php_fpm_dir_path: "{{ php_fpm_generic_path }}.d"
+php_fpm_conf_path: "{{ php_fpm_generic_path }}.conf"
+php_fpm_ini_path: "{{ php_fpm_generic_path}} .ini"
+php_fpm_pool_dir_path: "{{ php_fpm_generic_path }}.d"
+
+php_generic_path: "/etc/php-{{ php_version }}"
+php_conf_dir_path: "{{ php_generic_path }}.d"

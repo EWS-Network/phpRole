@@ -1,0 +1,4 @@
+---
+# Default changes for vars
+
+php_version: "{{ php_maj_version }}.{{ php_min_version }}"

@@ -1,0 +1,100 @@
+---
+# Install PHP for AWS
+
+- name: Include Ubuntu vars
+  include_vars: ubuntu.yml
+
+#- name: Play the PHP Version tasks
+#  include: ubuntu-php{{ php_maj_version }}.yml
+#
+
+- name: Add PHP7 repository
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+
+- name: Install PHP 7
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - php{{ ubuntu_php_version }}-cli
+    - php{{ ubuntu_php_version }}-fpm
+    - php{{ ubuntu_php_version }}-mysql
+    - php{{ ubuntu_php_version }}-xml
+    - php{{ ubuntu_php_version }}-mcrypt
+    - php{{ ubuntu_php_version }}-mbstring
+    - php{{ ubuntu_php_version }}-gd
+    - php{{ ubuntu_php_version }}-intl
+    - php{{ ubuntu_php_version }}-redis
+    - php{{ ubuntu_php_version }}-common
+  become: yes
+  register: php_install
+  tags:
+    - preinstall
+    - packages
+
+- name: Create php session directories
+  file:
+    state: directory
+    owner: "{{ php_user }}"
+    group: "{{ php_group }}"
+    path: "{{ item }}"
+    recurse: yes
+  with_items:
+    - /var/lib/php/session
+    - /var/lib/php/wsdlcache
+  when:
+    - php_install|changed
+  become: yes
+
+# using the version based for now
+# - name: Create the service file
+#   file:
+#     src: /lib/systemd/system/php{{ php_version }}-fpm.service
+#     dest: /lib/systemd/system/php-fpm.service
+#     state: link
+#   become: yes
+#   tags:
+#     - preinstall
+#     - packages
+
+- name: Create the php-fpm configuration file
+  template:
+    src: php-fpm.conf.j2
+    dest: "{{ php_fpm_conf_path }}"
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+- name: Generate PHP INI
+  template:
+    src: php.ini.j2
+    dest: "{{ php_fpm_ini_path }}"
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+- name: Remove all default pool files
+  shell: |
+    rm -rfv {{ php_fpm_pool_dir_path }}/*
+  become: yes
+  tags:
+    - preinstall
+    - packages
+
+- name: Stop PHP
+  service:
+    name: "php{{ php_version }}-fpm"
+    state: stopped
+  become: yes
+  tags:
+    - preinstall
+    - packages

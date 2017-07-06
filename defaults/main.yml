@@ -1,0 +1,12 @@
+---
+# Defaults for php
+
+php_maj_version: 7
+php_min_version: 1
+
+php_redis_ini_file: 30-redis.ini
+
+php_user: php
+php_group: php
+
+php_datetimezone: Etc/Utc
