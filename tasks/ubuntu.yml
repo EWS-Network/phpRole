@@ -91,6 +91,14 @@
     - preinstall
     - packages
 
+- name: Generate default local pool
+  template:
+    src: default.conf.j2
+    dest: "{{ php_fpm_pool_dir_path }}/default.conf"
+  tags:
+    - preinstall
+    - packages
+
 - name: Stop PHP
   service:
     name: "php{{ php_version }}-fpm"
