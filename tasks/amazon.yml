@@ -3,6 +3,8 @@
 
 - name: Include Amazon Linux vars
   include_vars: aws.yml
+  tags:
+    - always
 
 #- name: Play the PHP Version tasks
 #  include: aws-php{{ php_maj_version }}.yml

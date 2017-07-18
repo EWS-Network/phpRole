@@ -3,6 +3,8 @@
 
 - name: Include Ubuntu vars
   include_vars: ubuntu.yml
+  tags:
+    - always
 
 #- name: Play the PHP Version tasks
 #  include: ubuntu-php{{ php_maj_version }}.yml
